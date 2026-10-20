@@ -116,6 +116,10 @@ export class Player {
   /** Devuelve: 'dodged' | 'parried' | 'blocked' | 'guardbreak' | 'hit' | 'dead' | 'none' */
   takeDamage(dmg, from, { guardBreak = false, knock = 3, attacker = null } = {}) {
     if (this.state === 'dead') return 'none';
+    const shieldReduction =
+  this.game.inventoryUI?.inventory.getDamageReduction() ?? 0;
+
+dmg *= 1 - shieldReduction;
     if (this.invuln > 0) return 'dodged';
     const g = this.game;
     const toAtt = Math.atan2(from.x - this.pos.x, from.z - this.pos.z);
@@ -443,7 +447,8 @@ export class Player {
       if (g.world.segmentBlocked(this.pos.x, this.pos.z, e.pos.x, e.pos.z)) continue;
       a.hit.add(e);
 
-      let dmg = d.dmg * this.dmgMul;
+      const weaponBonus = g.inventoryUI?.inventory.getAttackBonus() ?? 0;
+      let dmg = (d.dmg + weaponBonus) * this.dmgMul;
       let counter = false;
       if (this.counterWindow > 0 && a.kind !== 'kick') { dmg *= 1.6; counter = true; this.counterWindow = 0; }
       const res = e.takeHit(dmg, this.pos, { guardBreak: !!d.guardBreak, poise: d.poise, stagger: !!d.stagger, knock: d.knock || 1.5, kick: !!d.kick });

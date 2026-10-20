@@ -9,6 +9,7 @@ import { HUD } from '../ui/HUD.js';
 import { TouchControls } from '../ui/TouchControls.js';
 import { AudioManager } from '../systems/AudioManager.js';
 import { SaveManager } from '../systems/SaveManager.js';
+import { InventoryUI } from '../ui/inventoryUI.js';
 
 export class Game {
   constructor() {
@@ -34,6 +35,7 @@ export class Game {
     this.audio = new AudioManager();
     this.hud = new HUD(this);
     this.player = new Player(this);
+    this.inventoryUI = new InventoryUI(this);
     this.enemies = [];
     this.touch = new TouchControls(this.input, () => this.pause());
 
@@ -119,10 +121,14 @@ export class Game {
   }
 
   hideAll() {
-    for (const id of ['menu', 'pause', 'dead', 'victory', 'controls-panel', 'settings-panel', 'loading']) {
-      document.getElementById(id).classList.add('hidden');
-    }
-  }
+  for (const id of [
+  'menu', 'pause', 'dead', 'victory',
+  'controls-panel', 'settings-panel', 'loading'
+]) {
+  document.getElementById(id)?.classList.add('hidden');
+}
+
+this.inventoryUI?.close();}
 
   show(id) { document.getElementById(id).classList.remove('hidden'); }
 
