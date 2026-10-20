@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>La Corona de Velkran</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./src/styles/main.css" />
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <canvas id="c"></canvas>
+
+    <!-- HUD -->
+    <div id="hud" class="hidden">
+      <div id="status">
+        <div id="lvl-badge">Nv <span id="lvl">1</span></div>
+        <div class="bars">
+          <div class="bar hp"><div id="bar-hp" class="fill"></div><span id="txt-hp"></span></div>
+          <div class="bar sta"><div id="bar-sta" class="fill"></div></div>
+          <div class="bar xp"><div id="bar-xp" class="fill"></div></div>
+        </div>
+      </div>
+      <div id="quest">
+        <div class="quest-title">Misión</div>
+        <div id="quest-text">Elimina a los bandidos del camino</div>
+      </div>
+      <div id="info-hint">Tab: controles · Esc: pausa</div>
+      <div id="notify"></div>
+      <div id="enemy-bars"></div>
+      <div id="float-layer"></div>
+      <div id="crosshair"></div>
+      <div id="vignette-hit"></div>
+    </div>
+
+    <!-- Controles táctiles -->
+    <div id="touch" class="hidden">
+      <div id="joy"><div id="joy-knob"></div></div>
+      <div id="touch-btns">
+        <button data-act="light" class="tb big">Atacar</button>
+        <button data-act="heavy" class="tb">Fuerte</button>
+        <button data-hold="block" class="tb">Defender</button>
+        <button data-act="roll" class="tb">Esquivar</button>
+        <button data-act="kick" class="tb">Patada</button>
+        <button data-act="jump" class="tb">Saltar</button>
+        <button data-hold="sprint" class="tb">Correr</button>
+      </div>
+      <button id="touch-pause" class="tb small">II</button>
+    </div>
+
+    <!-- Menú principal -->
+    <div id="menu" class="screen">
+      <div class="parchment title-box">
+        <div class="crown">♔</div>
+        <h1>La Corona de Velkran</h1>
+        <p class="subtitle">Demo jugable · Aldea de Brumavieja</p>
+        <div class="buttons">
+          <button id="btn-new" class="btn">Nueva partida</button>
+          <button id="btn-continue" class="btn">Continuar partida</button>
+          <button id="btn-controls" class="btn">Controles</button>
+          <button id="btn-settings" class="btn">Configuración</button>
+        </div>
+        <p class="lore">Hace siglos, una corona ancestral mantenía el equilibrio del reino. Hoy los bandidos acechan el camino y algo despierta bajo la tierra...</p>
+      </div>
+    </div>
+
+    <!-- Pausa -->
+    <div id="pause" class="screen hidden">
+      <div class="parchment small-box">
+        <h2>Pausa</h2>
+        <div class="buttons">
+          <button id="btn-resume" class="btn">Reanudar</button>
+          <button id="btn-restart" class="btn">Reiniciar demo</button>
+          <button id="btn-pause-controls" class="btn">Controles</button>
+          <button id="btn-pause-settings" class="btn">Configuración</button>
+          <button id="btn-to-menu" class="btn">Menú principal</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Derrota -->
+    <div id="dead" class="screen hidden">
+      <div class="parchment small-box danger">
+        <h2>Has caído</h2>
+        <p>Los bandidos de Velkran son implacables. Aprende sus patrones: la barra de resistencia es tu mejor aliada.</p>
+        <div class="buttons"><button id="btn-retry" class="btn">Reintentar</button>
+        <button id="btn-dead-menu" class="btn">Menú principal</button></div>
+      </div>
+    </div>
+
+    <!-- Victoria -->
+    <div id="victory" class="screen hidden">
+      <div class="parchment small-box">
+        <h2>¡Victoria!</h2>
+        <p>El camino vuelve a estar libre. Pero entre las pertenencias de los bandidos hallas un mapa que señala las ruinas del norte...</p>
+        <p class="small-note" id="victory-stats"></p>
+        <div class="buttons"><button id="btn-again" class="btn">Jugar de nuevo</button>
+        <button id="btn-victory-menu" class="btn">Menú principal</button></div>
+      </div>
+    </div>
+
+    <!-- Controles -->
+    <div id="controls-panel" class="screen hidden">
+      <div class="parchment small-box wide">
+        <h2>Controles</h2>
+        <table>
+          <tr><td>W A S D</td><td>Moverse</td></tr>
+          <tr><td>Ratón</td><td>Cámara (rueda: acercar / alejar)</td></tr>
+          <tr><td>Botón izquierdo</td><td>Ataque rápido (combo de 3 golpes)</td></tr>
+          <tr><td>R</td><td>Ataque fuerte (rompe la guardia)</td></tr>
+          <tr><td>Botón derecho (mantener)</td><td>Defender con el escudo · parada si lo pulsas justo antes del golpe</td></tr>
+          <tr><td>Q</td><td>Esquivar / rodar (invulnerable un instante)</td></tr>
+          <tr><td>F</td><td>Patada (interrumpe y rompe la guardia)</td></tr>
+          <tr><td>Mayúsculas</td><td>Correr</td></tr>
+          <tr><td>Espacio</td><td>Saltar</td></tr>
+          <tr><td>C o Ctrl</td><td>Agacharse</td></tr>
+          <tr><td>Tab</td><td>Mostrar / ocultar esta ayuda</td></tr>
+          <tr><td>Esc</td><td>Pausa</td></tr>
+        </table>
+        <div class="buttons"><button class="btn close-panel">Cerrar</button></div>
+      </div>
+    </div>
+
+    <!-- Configuración -->
+    <div id="settings-panel" class="screen hidden">
+      <div class="parchment small-box">
+        <h2>Configuración</h2>
+        <label>Volumen <input id="set-volume" type="range" min="0" max="1" step="0.05" value="0.6" /></label>
+        <label>Sensibilidad del ratón <input id="set-sens" type="range" min="0.4" max="2.5" step="0.1" value="1" /></label>
+        <p class="small-note">El guardado es local, en este navegador (LocalStorage). No se sincroniza entre dispositivos y puede ser modificado por quien use el equipo.</p>
+        <div class="buttons"><button class="btn close-panel">Cerrar</button></div>
+      </div>
+    </div>
+
+    <div id="loading" class="screen">
+      <div class="parchment small-box"><h2>Cargando Velkran…</h2></div>
+    </div>
+  </div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "la-corona-de-velkran",
+  "version": "0.1.0",
+  "private": true,
+  "description": "La Corona de Velkran - demo 3D medieval (HTML + CSS + JavaScript + Three.js)",
+  "scripts": {
+    "start": "python3 -m http.server 8080"
+  }
+}
