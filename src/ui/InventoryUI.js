@@ -1,5 +1,5 @@
 
-import { Inventory } from '../game/inventory.js';
+import { Inventory } from '../game/Inventory.js';
 
 export class InventoryUI {
   constructor(game) {
@@ -8,10 +8,17 @@ export class InventoryUI {
     this.opened = false;
     this.previousState = 'playing';
     this.category = 'all';
+    this.selectedId = null;
 
     this.createUI();
 
     window.addEventListener('keydown', event => {
+      if (event.code === 'Escape' && this.opened) {
+        event.preventDefault();
+        this.close();
+        return;
+      }
+
       if (event.code !== 'KeyI' || event.repeat) return;
 
       // No abrir el inventario desde los menús.
@@ -37,21 +44,55 @@ export class InventoryUI {
           <button data-action="close" class="vk-close">✕</button>
         </header>
 
+        <h3 class="vk-section-title">Equipo equipado</h3>
+
         <div class="vk-equipment">
-          <div><span>Arma</span><strong id="vk-weapon">Ninguna</strong></div>
-          <div><span>Escudo</span><strong id="vk-shield">Ninguno</strong></div>
+          <div>
+            <span>Arma</span>
+            <strong id="vk-weapon">Ninguna</strong>
+          </div>
+          <div>
+            <span>Escudo</span>
+            <strong id="vk-shield">Ninguno</strong>
+          </div>
+          <div>
+            <span>Casco</span>
+            <strong id="vk-head">Ninguno</strong>
+          </div>
+          <div>
+            <span>Pecho</span>
+            <strong id="vk-torso">Ninguno</strong>
+          </div>
+          <div>
+            <span>Guantes</span>
+            <strong id="vk-hands">Ninguno</strong>
+          </div>
+          <div>
+            <span>Piernas</span>
+            <strong id="vk-legs">Ninguno</strong>
+          </div>
+          <div>
+            <span>Botas</span>
+            <strong id="vk-feet">Ninguno</strong>
+          </div>
+          <div>
+            <span>Capa</span>
+            <strong id="vk-cape">Ninguna</strong>
+          </div>
         </div>
 
         <nav class="vk-tabs">
           <button data-category="all">Todos</button>
           <button data-category="weapon">Armas</button>
           <button data-category="shield">Escudos</button>
+          <button data-category="armor">Armaduras</button>
           <button data-category="consumable">Pociones</button>
           <button data-category="material">Materiales</button>
         </nav>
 
         <div class="vk-content">
           <div id="vk-grid" class="vk-grid"></div>
+
           <aside id="vk-details" class="vk-details">
             <h3>Tu aventura</h3>
             <p>Selecciona un objeto para consultar sus detalles.</p>
@@ -68,117 +109,293 @@ export class InventoryUI {
     const style = document.createElement('style');
     style.textContent = `
       .vk-inventory {
-        position: fixed; inset: 0; z-index: 10000;
-        display: grid; place-items: center;
-        padding: 18px; background: #080705d9;
-        color: #eee0c1; font-family: Georgia, serif;
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        display: grid;
+        place-items: center;
+        padding: 18px;
+        background: #080705d9;
+        color: #eee0c1;
+        font-family: Georgia, serif;
       }
-      .vk-inventory.hidden { display: none; }
+
+      .vk-inventory.hidden {
+        display: none;
+      }
+
       .vk-panel {
-        width: min(900px, 100%); max-height: 90vh;
-        overflow: auto; padding: 24px;
-        background: linear-gradient(135deg,#29251d,#15130f);
+        width: min(900px, 100%);
+        max-height: 90vh;
+        overflow: auto;
+        padding: 24px;
+        background: linear-gradient(135deg, #29251d, #15130f);
         border: 2px solid #8c7042;
         box-shadow: 0 20px 80px #000b;
       }
-      .vk-header,.vk-footer {
-        display:flex; justify-content:space-between;
-        align-items:center; gap:12px;
+
+      .vk-header,
+      .vk-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
       }
-      .vk-header small { color:#c6a66a; letter-spacing:2px; }
-      .vk-header h2 { margin:6px 0 18px; font-size:30px; }
-      .vk-close,.vk-tabs button,.vk-details button {
-        color:#f3e6c9; background:#383024;
-        border:1px solid #8c7042; padding:9px 12px;
-        cursor:pointer; font:inherit;
+
+      .vk-header small {
+        color: #c6a66a;
+        letter-spacing: 2px;
       }
-      .vk-close { align-self:flex-start; }
+
+      .vk-header h2 {
+        margin: 6px 0 18px;
+        font-size: 30px;
+      }
+
+      .vk-section-title {
+        margin: 0 0 10px;
+        color: #e1bd75;
+        font-size: 17px;
+      }
+
+      .vk-close,
+      .vk-tabs button,
+      .vk-details button {
+        color: #f3e6c9;
+        background: #383024;
+        border: 1px solid #8c7042;
+        padding: 9px 12px;
+        cursor: pointer;
+        font: inherit;
+      }
+
+      .vk-close {
+        align-self: flex-start;
+      }
+
       .vk-equipment {
-        display:grid; grid-template-columns:1fr 1fr;
-        gap:10px; margin-bottom:16px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin-bottom: 16px;
       }
+
       .vk-equipment div {
-        padding:12px; border:1px solid #5e4c32;
-        background:#211d16; display:flex;
-        flex-direction:column; gap:6px;
+        min-width: 0;
+        padding: 12px;
+        border: 1px solid #5e4c32;
+        background: #211d16;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        overflow-wrap: anywhere;
       }
-      .vk-equipment span,.vk-footer { color:#b7a582; font-size:13px; }
-      .vk-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
-      .vk-tabs button.active,.vk-details button:hover {
-        background:#70542b; border-color:#e1bd75;
+
+      .vk-equipment span,
+      .vk-footer {
+        color: #b7a582;
+        font-size: 13px;
       }
+
+      .vk-equipment strong {
+        color: #eee0c1;
+        font-size: 13px;
+      }
+
+      .vk-tabs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+
+      .vk-tabs button.active,
+      .vk-details button:hover {
+        background: #70542b;
+        border-color: #e1bd75;
+      }
+
       .vk-content {
-        display:grid; grid-template-columns:minmax(0,1.5fr) minmax(190px,1fr);
-        gap:16px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(190px, 1fr);
+        gap: 16px;
       }
+
       .vk-grid {
-        display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
-        gap:8px; align-content:start;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+        align-content: start;
       }
+
       .vk-slot {
-        min-width:0; aspect-ratio:1; position:relative;
-        display:flex; flex-direction:column; justify-content:center;
-        align-items:center; gap:5px; padding:4px;
-        background:#211e18; border:1px solid #55462f;
-        color:#ead8b3; cursor:pointer;
+        min-width: 0;
+        aspect-ratio: 1;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        padding: 4px;
+        background: #211e18;
+        border: 1px solid #55462f;
+        color: #ead8b3;
+        cursor: pointer;
       }
-      .vk-slot.selected { outline:2px solid #d4ad64; }
-      .vk-slot .vk-icon { font-size:clamp(22px,4vw,35px); }
+
+      .vk-slot:disabled {
+        cursor: default;
+      }
+
+      .vk-slot.selected {
+        outline: 2px solid #d4ad64;
+      }
+
+      .vk-slot .vk-icon {
+        font-size: clamp(22px, 4vw, 35px);
+      }
+
       .vk-slot .vk-name {
-        font-size:11px; text-align:center;
-        overflow-wrap:anywhere;
+        font-size: 11px;
+        text-align: center;
+        overflow-wrap: anywhere;
       }
+
       .vk-slot .vk-qty {
-        position:absolute; right:5px; bottom:3px;
-        font-size:12px; color:#fff;
+        position: absolute;
+        right: 5px;
+        bottom: 3px;
+        font-size: 12px;
+        color: #fff;
       }
+
       .vk-details {
-        border:1px solid #55462f; padding:14px;
-        background:#211e18; min-height:160px;
+        border: 1px solid #55462f;
+        padding: 14px;
+        background: #211e18;
+        min-height: 160px;
       }
-      .vk-details h3 { margin-top:0; }
-      .vk-details p { color:#c5b798; line-height:1.5; }
-      .vk-details button { margin:5px 5px 0 0; }
-      .vk-footer { margin-top:18px; }
-      @media(max-width:600px) {
-        .vk-panel { padding:14px; }
-        .vk-content { grid-template-columns:1fr; }
-        .vk-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
-        .vk-details { min-height:100px; }
+
+      .vk-details h3 {
+        margin-top: 0;
+      }
+
+      .vk-details p {
+        color: #c5b798;
+        line-height: 1.5;
+      }
+
+      .vk-details button {
+        margin: 5px 5px 0 0;
+      }
+
+      .vk-details button:disabled {
+        opacity: 0.55;
+        cursor: default;
+      }
+
+      .vk-footer {
+        margin-top: 18px;
+      }
+
+      @media (max-width: 600px) {
+        .vk-panel {
+          padding: 14px;
+        }
+
+        .vk-equipment {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .vk-content {
+          grid-template-columns: 1fr;
+        }
+
+        .vk-grid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .vk-details {
+          min-height: 100px;
+        }
       }
     `;
 
     document.head.appendChild(style);
     document.body.appendChild(this.overlay);
 
-    this.selectedId = null;
-
     this.overlay.addEventListener('click', event => {
       const button = event.target.closest('button');
-      if (!button) return;
+      if (!button || !this.overlay.contains(button)) return;
 
       if (button.dataset.category) {
         this.category = button.dataset.category;
         this.render();
+        return;
       }
 
       if (button.dataset.item) {
         this.selectedId = button.dataset.item;
         this.render();
+        return;
       }
 
-      if (button.dataset.action === 'close') this.close();
-      if (button.dataset.action === 'equip') {
-        this.inventory.equip(this.selectedId);
-        this.render();
+      const action = button.dataset.action;
+
+      if (action === 'close') {
+        this.close();
+        return;
       }
-      if (button.dataset.action === 'use') {
+
+      if (action === 'equip') {
+        if (!this.selectedId) return;
+
+        const equipped = this.inventory.equip(this.selectedId);
+
+        if (!equipped) {
+          this.game.hud?.notify?.('No se pudo equipar el objeto');
+        } else {
+          this.game.hud?.notify?.('Equipo actualizado');
+        }
+
+        this.render();
+        return;
+      }
+
+      if (action === 'unequip') {
+        const slot = button.dataset.slot;
+        if (!slot) return;
+
+        this.inventory.unequip(slot);
+        this.render();
+        return;
+      }
+
+      if (action === 'use') {
+        if (!this.selectedId) return;
+
         this.inventory.use(this.selectedId);
         this.render();
+        return;
       }
-      if (button.dataset.action === 'drop') {
-        this.inventory.remove(this.selectedId, 1);
-        this.selectedId = null;
+
+      if (action === 'drop') {
+        if (!this.selectedId) return;
+
+        const drops = this.game.drops;
+
+        if (typeof drops?.dropFromInventory !== 'function') {
+          this.game.hud?.notify?.('No se puede soltar el objeto ahora');
+          return;
+        }
+
+        const dropped = drops.dropFromInventory(this.selectedId, 1);
+
+        if (dropped) {
+          this.selectedId = null;
+        }
+
         this.render();
       }
     });
@@ -187,8 +404,11 @@ export class InventoryUI {
   }
 
   toggle() {
-    if (this.opened) this.close();
-    else this.open();
+    if (this.opened) {
+      this.close();
+    } else {
+      this.open();
+    }
   }
 
   open() {
@@ -197,10 +417,15 @@ export class InventoryUI {
     this.opened = true;
     this.previousState = this.game.state;
     this.game.state = 'inventory';
-    this.game.input.enabled = false;
-    this.game.input.reset();
 
-    if (document.pointerLockElement) document.exitPointerLock();
+    if (this.game.input) {
+      this.game.input.enabled = false;
+      this.game.input.reset?.();
+    }
+
+    if (document.pointerLockElement) {
+      document.exitPointerLock();
+    }
 
     this.overlay.classList.remove('hidden');
     this.render();
@@ -213,39 +438,68 @@ export class InventoryUI {
     this.overlay.classList.add('hidden');
 
     if (this.game.state === 'inventory') {
-      this.game.state = 'playing';
-      this.game.input.reset();
-      this.game.input.enabled = true;
-      this.game.lockPointer();
+      this.game.state = this.previousState || 'playing';
+
+      if (this.game.input) {
+        this.game.input.reset?.();
+        this.game.input.enabled = true;
+      }
+
+      this.game.lockPointer?.();
     }
   }
 
   render() {
+    if (!this.overlay) return;
+
     const grid = this.overlay.querySelector('#vk-grid');
     const details = this.overlay.querySelector('#vk-details');
     const items = this.inventory.getItems();
+
     const visible = items.filter(item =>
       this.category === 'all' || item.type === this.category
     );
+
+    // Mantiene la selección si el objeto todavía existe.
+    if (!items.some(item => item.id === this.selectedId)) {
+      this.selectedId = null;
+    }
 
     grid.innerHTML = '';
 
     for (let i = 0; i < this.inventory.capacity; i++) {
       const item = visible[i];
       const slot = document.createElement('button');
+
+      slot.type = 'button';
       slot.className = 'vk-slot' +
         (item?.id === this.selectedId ? ' selected' : '');
 
       if (item) {
         slot.dataset.item = item.id;
-        slot.innerHTML = `
-          <span class="vk-icon">${item.icon}</span>
-          <span class="vk-name"></span>
-          <span class="vk-qty">${item.qty > 1 ? item.qty : ''}</span>
-        `;
-        slot.querySelector('.vk-name').textContent = item.name;
+
+        const icon = document.createElement('span');
+        icon.className = 'vk-icon';
+        icon.textContent = item.icon;
+
+        const name = document.createElement('span');
+        name.className = 'vk-name';
+        name.textContent = item.name;
+
+        const quantity = document.createElement('span');
+        quantity.className = 'vk-qty';
+        quantity.textContent = item.qty > 1 ? item.qty : '';
+
         slot.title = item.description;
-        if (item.equipped) slot.style.borderColor = '#d4ad64';
+
+        if (item.equipped) {
+          slot.style.borderColor = '#d4ad64';
+          slot.setAttribute('aria-label', `${item.name}, equipado`);
+        } else {
+          slot.setAttribute('aria-label', item.name);
+        }
+
+        slot.append(icon, name, quantity);
       } else {
         slot.disabled = true;
         slot.innerHTML = '<span style="opacity:.2">◇</span>';
@@ -288,29 +542,77 @@ export class InventoryUI {
         details.appendChild(stat);
       }
 
-      const addButton = (label, action) => {
+      const addButton = (label, action, options = {}) => {
         const button = document.createElement('button');
+
+        button.type = 'button';
         button.textContent = label;
         button.dataset.action = action;
+
+        if (options.slot) {
+          button.dataset.slot = options.slot;
+        }
+
+        if (options.disabled) {
+          button.disabled = true;
+        }
+
         details.appendChild(button);
       };
 
       if (selected.slot) {
-        addButton(selected.equipped ? 'Ya equipado' : 'Equipar', 'equip');
+        if (selected.equipped) {
+          addButton('Ya equipado', 'equip', { disabled: true });
+
+          addButton('Desequipar', 'unequip', {
+            slot: selected.slot,
+          });
+        } else {
+          addButton('Equipar', 'equip');
+        }
       }
 
       if (selected.type === 'consumable') {
         addButton('Usar', 'use');
       }
 
-      addButton('Soltar 1', 'drop');
+      addButton('Soltar', 'drop');
     }
 
+    // Actualiza los nombres del arma y del escudo.
+    const weapon = this.inventory.getDefinition(
+      this.inventory.equipment.weapon
+    );
+
+    const shield = this.inventory.getDefinition(
+      this.inventory.equipment.shield
+    );
+
     this.overlay.querySelector('#vk-weapon').textContent =
-      this.inventory.getDefinition(this.inventory.equipment.weapon)?.name || 'Ninguna';
+      weapon?.name || 'Ninguna';
 
     this.overlay.querySelector('#vk-shield').textContent =
-      this.inventory.getDefinition(this.inventory.equipment.shield)?.name || 'Ninguno';
+      shield?.name || 'Ninguno';
+
+    // Actualiza las seis ranuras de armadura.
+    const equipmentLabels = {
+      head: 'vk-head',
+      torso: 'vk-torso',
+      hands: 'vk-hands',
+      legs: 'vk-legs',
+      feet: 'vk-feet',
+      cape: 'vk-cape',
+    };
+
+    for (const [slot, elementId] of Object.entries(equipmentLabels)) {
+      const itemId = this.inventory.equipment[slot];
+      const definition = itemId
+        ? this.inventory.getDefinition(itemId)
+        : null;
+
+      this.overlay.querySelector(`#${elementId}`).textContent =
+        definition?.name || (slot === 'cape' ? 'Ninguna' : 'Ninguno');
+    }
 
     this.overlay.querySelector('#vk-capacity').textContent =
       `${items.length} / ${this.inventory.capacity} espacios ocupados`;

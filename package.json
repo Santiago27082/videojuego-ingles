@@ -5,5 +5,8 @@
   "description": "La Corona de Velkran - demo 3D medieval (HTML + CSS + JavaScript + Three.js)",
   "scripts": {
     "start": "python3 -m http.server 8080"
+  },
+  "dependencies": {
+    "three": "^0.186.1"
   }
 }

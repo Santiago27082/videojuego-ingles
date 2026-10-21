@@ -19,12 +19,18 @@ const A = (o) => ({ ...STANCE, ...o });
 // Fases: preparación (wind) -> impacto (act) -> recuperación (rec). El daño sólo se aplica en `act`.
 const ATTACKS = {
   light: [
-    { name: 'Corte horizontal', wind: 0.15, act: 0.12, rec: 0.24, dmg: 16, sta: 11, range: 2.5, arc: 150, poise: 16, lunge: 2.6,
-      w: A({ rax: -1.45, ray: -1.3, raz: -0.15, rf: -0.5, ty: -0.55 }), e: A({ rax: -1.45, ray: 1.1, raz: 0.1, rf: -0.1, ty: 0.6, lean: 0.18 }) },
-    { name: 'Corte diagonal', wind: 0.14, act: 0.12, rec: 0.24, dmg: 18, sta: 11, range: 2.5, arc: 150, poise: 18, lunge: 2.6,
-      w: A({ rax: -2.1, ray: 1.0, raz: 0.1, rf: -0.5, ty: 0.5 }), e: A({ rax: -1.0, ray: -1.2, raz: -0.2, rf: -0.1, ty: -0.6, lean: 0.2 }) },
-    { name: 'Estocada', wind: 0.18, act: 0.12, rec: 0.34, dmg: 24, sta: 14, range: 2.9, arc: 80, poise: 26, lunge: 4.2,
-      w: A({ rax: -0.9, ray: -0.3, raz: -0.1, rf: -2.0, ty: -0.45, lean: -0.08 }), e: A({ rax: -1.5, ray: 0.05, raz: 0, rf: -0.05, ty: 0.3, lean: 0.3 }) },
+    {
+      name: 'Corte horizontal', wind: 0.15, act: 0.12, rec: 0.24, dmg: 16, sta: 11, range: 2.5, arc: 150, poise: 16, lunge: 2.6,
+      w: A({ rax: -1.45, ray: -1.3, raz: -0.15, rf: -0.5, ty: -0.55 }), e: A({ rax: -1.45, ray: 1.1, raz: 0.1, rf: -0.1, ty: 0.6, lean: 0.18 })
+    },
+    {
+      name: 'Corte diagonal', wind: 0.14, act: 0.12, rec: 0.24, dmg: 18, sta: 11, range: 2.5, arc: 150, poise: 18, lunge: 2.6,
+      w: A({ rax: -2.1, ray: 1.0, raz: 0.1, rf: -0.5, ty: 0.5 }), e: A({ rax: -1.0, ray: -1.2, raz: -0.2, rf: -0.1, ty: -0.6, lean: 0.2 })
+    },
+    {
+      name: 'Estocada', wind: 0.18, act: 0.12, rec: 0.34, dmg: 24, sta: 14, range: 2.9, arc: 80, poise: 26, lunge: 4.2,
+      w: A({ rax: -0.9, ray: -0.3, raz: -0.1, rf: -2.0, ty: -0.45, lean: -0.08 }), e: A({ rax: -1.5, ray: 0.05, raz: 0, rf: -0.05, ty: 0.3, lean: 0.3 })
+    },
   ],
   heavy: {
     name: 'Golpe descendente', wind: 0.45, act: 0.14, rec: 0.5, dmg: 44, sta: 28, range: 2.7, arc: 120, poise: 60, lunge: 3.5, guardBreak: true, knock: 3.5, heavy: true,
@@ -54,13 +60,23 @@ export class Player {
     this.root.add(this.pivot);
     game.scene.add(this.root);
 
+    
     this.pos = this.root.position;
     this.radius = 0.42;
     this.level = 1;
     this.xp = 0;
     this.kills = 0;
+
     this.reset();
-  }
+
+// Registrar el jugador para que Inventory.js encuentre su Humanoid.
+    this.game.player = this;
+
+// Aplicar el equipo guardado o el equipo inicial.
+    this.game.inventoryUI?.inventory?.applyEquipment();
+
+
+}
 
   get maxHp() { return 100 + (this.level - 1) * 12; }
   get maxSta() { return 100 + (this.level - 1) * 6; }
@@ -117,9 +133,9 @@ export class Player {
   takeDamage(dmg, from, { guardBreak = false, knock = 3, attacker = null } = {}) {
     if (this.state === 'dead') return 'none';
     const shieldReduction =
-  this.game.inventoryUI?.inventory.getDamageReduction() ?? 0;
+      this.game.inventoryUI?.inventory.getDamageReduction() ?? 0;
 
-dmg *= 1 - shieldReduction;
+    dmg *= 1 - shieldReduction;
     if (this.invuln > 0) return 'dodged';
     const g = this.game;
     const toAtt = Math.atan2(from.x - this.pos.x, from.z - this.pos.z);
