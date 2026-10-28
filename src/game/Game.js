@@ -1,4 +1,3 @@
-
 import * as THREE from 'three';
 import { World } from '../world/World.js';
 import { InputController } from './InputController.js';
@@ -13,6 +12,7 @@ import { SaveManager } from '../systems/SaveManager.js';
 import { InventoryUI } from '../ui/InventoryUI.js';
 import { DropManager } from '../systems/DropManager.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { StatsPanel } from '../ui/StatsPanel.js';
 
 export class Game {
   constructor() {
@@ -51,6 +51,7 @@ export class Game {
     this.hud = new HUD(this);
 
     this.player = new Player(this);
+    this.statsPanel = new StatsPanel(this);
     this.inventoryUI = new InventoryUI(this);
     this.drops = new DropManager(this);
     this.enemies = [];
@@ -76,8 +77,6 @@ export class Game {
     window.addEventListener('resize', () => this.resize());
     this.resize();
 
-    // Si se pierde el bloqueo del puntero durante la partida,
-    // se pausa el juego.
     document.addEventListener('pointerlockchange', () => {
       if (
         document.pointerLockElement !== this.canvas &&
@@ -88,7 +87,6 @@ export class Game {
       }
     });
 
-    // Recuperar el bloqueo al hacer clic en el juego.
     this.canvas.addEventListener('click', () => {
       if (
         this.state === 'playing' &&
@@ -105,7 +103,6 @@ export class Game {
       }
     });
 
-    // Cámara del menú.
     this.menuAngle = 0;
 
     this.loop = this.loop.bind(this);
@@ -165,13 +162,16 @@ export class Game {
         player.level = saved.level ?? 1;
         player.xp = saved.xp ?? 0;
         player.kills = saved.kills ?? 0;
+        player.loadAttributes(
+          saved.attributes,
+          saved.attributePoints
+        );
 
         this.audio.setVolume(saved.volume ?? this.audio.volume);
 
         this.sensitivity =
           saved.sensitivity ?? this.sensitivity;
 
-        // Recuperar el personaje guardado.
         if (
           saved.character === 'knight' ||
           saved.character === 'warrior'
@@ -180,7 +180,6 @@ export class Game {
         }
       }
     } else {
-      // Aplicar la elección realizada en el selector.
       if (character === 'knight' || character === 'warrior') {
         this.selectedCharacter = character;
       }
@@ -189,10 +188,16 @@ export class Game {
         player.level = 1;
         player.xp = 0;
         player.kills = 0;
+        player.attributes = {
+          strength: 0,
+          vitality: 0,
+          endurance: 0,
+          agility: 0,
+        };
+        player.attributePoints = 0;
       }
     }
 
-    // Reiniciar al jugador antes de comenzar.
     player.reset();
 
     this.spawnEnemies();
@@ -225,7 +230,7 @@ export class Game {
     this.saveProgress();
   }
 
-  setState(state) {
+    setState(state) {
     this.state = state;
     this.input.enabled = state === 'playing';
 
@@ -316,6 +321,8 @@ export class Game {
       level: this.player.level,
       xp: this.player.xp,
       kills: this.player.kills,
+      attributes: { ...this.player.attributes },
+      attributePoints: this.player.attributePoints,
       volume: this.audio.volume,
       sensitivity: this.sensitivity,
       character: this.selectedCharacter,
@@ -384,7 +391,7 @@ export class Game {
 
   /* ---------------- Bucle principal ---------------- */
 
-  loop() {
+    loop() {
     let dt = Math.min(this.clock.getDelta(), 0.05);
 
     if (this.hitStopT > 0) {
@@ -468,6 +475,8 @@ export class Game {
         .getElementById('controls-panel')
         ?.classList.toggle('hidden');
     }
+
+    this.statsPanel?.update();
 
     this.input.endFrame();
     this.renderer.render(this.scene, this.camera);

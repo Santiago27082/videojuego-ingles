@@ -1,5 +1,6 @@
 import { Game } from './game/Game.js';
 import { MainMenu } from './ui/MainMenu.js';
+import { StatsPanel } from '../ui/StatsPanel.js';
 
 function boot() {
   const loading = document.getElementById('loading');

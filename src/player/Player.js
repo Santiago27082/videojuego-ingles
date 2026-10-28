@@ -1,4 +1,3 @@
-
 import { AnimatedCharacter } from './AnimatedCharacter.js';
 import * as THREE from 'three';
 import { Humanoid, IDLE, lerpPose } from './Humanoid.js';
@@ -299,6 +298,15 @@ export class Player {
     this.xp = 0;
     this.kills = 0;
 
+    // Atributos RPG: los puntos se ganan al subir de nivel.
+    this.attributes = {
+      strength: 0,
+      vitality: 0,
+      endurance: 0,
+      agility: 0,
+    };
+    this.attributePoints = 0;
+
     this.reset();
 
     // Registrar el jugador para que Inventory.js encuentre su Humanoid.
@@ -309,19 +317,58 @@ export class Player {
   }
 
   get maxHp() {
-    return 100 + (this.level - 1) * 12;
+    return 100 + (this.level - 1) * 12 + (this.attributes?.vitality ?? 0) * 15;
   }
 
   get maxSta() {
-    return 100 + (this.level - 1) * 6;
+    return 100 + (this.level - 1) * 6 + (this.attributes?.endurance ?? 0) * 12;
   }
 
   get dmgMul() {
-    return 1 + (this.level - 1) * 0.1;
+    return (1 + (this.level - 1) * 0.1) * (1 + (this.attributes?.strength ?? 0) * 0.05);
+  }
+
+  get movementMultiplier() {
+    return 1 + (this.attributes?.agility ?? 0) * 0.03;
   }
 
   get xpNext() {
     return 80 + (this.level - 1) * 60;
+  }
+
+  /** Gasta un punto de atributo sin alterar los sistemas de combate existentes. */
+  spendAttribute(attribute) {
+    const valid = ['strength', 'vitality', 'endurance', 'agility'];
+    if (!valid.includes(attribute) || this.attributePoints <= 0) return false;
+
+    const oldMaxHp = this.maxHp;
+    const oldMaxSta = this.maxSta;
+
+    this.attributes[attribute] = Math.min(99, (this.attributes[attribute] ?? 0) + 1);
+    this.attributePoints -= 1;
+
+    // Al mejorar vitalidad/resistencia, conserva el porcentaje actual y aplica el aumento.
+    if (attribute === 'vitality') {
+      this.hp = Math.min(this.maxHp, this.hp + (this.maxHp - oldMaxHp));
+    } else if (attribute === 'endurance') {
+      this.sta = Math.min(this.maxSta, this.sta + (this.maxSta - oldMaxSta));
+    }
+
+    this.game.saveProgress?.();
+    return true;
+  }
+
+  /** Restaura los atributos guardados con validación. */
+  loadAttributes(attributes = {}, points = 0) {
+    const valid = ['strength', 'vitality', 'endurance', 'agility'];
+    for (const key of valid) {
+      const value = Number(attributes?.[key]);
+      this.attributes[key] = Number.isFinite(value) ? Math.max(0, Math.min(99, Math.floor(value))) : 0;
+    }
+    const count = Number(points);
+    this.attributePoints = Number.isFinite(count) ? Math.max(0, Math.min(999, Math.floor(count))) : 0;
+    this.hp = Math.min(this.hp ?? this.maxHp, this.maxHp);
+    this.sta = Math.min(this.sta ?? this.maxSta, this.maxSta);
   }
 
   reset(spawn = this.game.world.playerSpawn) {
@@ -381,8 +428,11 @@ export class Player {
     while (this.xp >= this.xpNext) {
       this.xp -= this.xpNext;
       this.level++;
+      this.attributePoints += 1;
       this.hp = this.maxHp;
       this.sta = this.maxSta;
+
+      this.game.statsPanel?.refresh();
 
       this.game.hud.notify(
         `¡Has subido al nivel ${this.level}!`
@@ -640,6 +690,8 @@ export class Player {
             : 3.1;
 
         if (this.blocking) speed = 1.9;
+
+        speed *= this.movementMultiplier;
 
         speed *= axis.len > 0.05
           ? Math.max(0.5, axis.len)
