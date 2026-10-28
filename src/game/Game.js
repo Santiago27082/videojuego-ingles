@@ -12,6 +12,7 @@ import { AudioManager } from '../systems/AudioManager.js';
 import { SaveManager } from '../systems/SaveManager.js';
 import { InventoryUI } from '../ui/InventoryUI.js';
 import { DropManager } from '../systems/DropManager.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 export class Game {
   constructor() {

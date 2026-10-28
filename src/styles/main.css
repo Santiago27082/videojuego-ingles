@@ -1,11 +1,7 @@
-
-/* ==================================================
+/* =========================================================
    VELKRAN: RISE OF THE KINGDOM
-   Hoja de estilos principal
-   Menú, selector de personajes, HUD y controles
-   ================================================== */
-
-/* ==================== VARIABLES ==================== */
+   Hoja de estilos principal: menú, HUD y controles
+   ========================================================= */
 
 :root {
   --parch: #e7d8b1;
@@ -14,12 +10,9 @@
   --gold: #b8923a;
   --blood: #8f1f1f;
   --stamina: #c9a227;
-
   --font-title: 'Cinzel', 'Trajan Pro', Georgia, serif;
   --font-body: 'Crimson Text', Georgia, 'Times New Roman', serif;
 }
-
-/* ==================== REINICIO GENERAL ==================== */
 
 * {
   box-sizing: border-box;
@@ -45,8 +38,14 @@ input {
 }
 
 button {
-  -webkit-appearance: none;
   appearance: none;
+  -webkit-appearance: none;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid #f5d98a;
+  outline-offset: 3px;
 }
 
 #app {
@@ -68,25 +67,23 @@ canvas#c {
   display: none !important;
 }
 
-/* ==================== PANTALLAS GENERALES ==================== */
+/* =========================================================
+   PANTALLAS Y FONDO
+   ========================================================= */
 
 .screen {
   position: absolute;
   inset: 0;
   z-index: 20;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 12px;
-
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(8, 10, 16, 0.55),
-      rgba(3, 4, 8, 0.92)
-    );
+  background: radial-gradient(
+    ellipse at center,
+    rgba(8, 10, 16, 0.55),
+    rgba(3, 4, 8, 0.92)
+  );
 }
 
 .parchment {
@@ -94,23 +91,13 @@ canvas#c {
   max-width: 560px;
   max-height: 94vh;
   overflow-y: auto;
-
   padding: 28px 34px;
-
   text-align: center;
-
-  background:
-    linear-gradient(
-      160deg,
-      var(--parch),
-      var(--parch-dark)
-    );
-
+  background: linear-gradient(160deg, var(--parch), var(--parch-dark));
   border: 3px solid #5a4020;
   outline: 2px solid var(--gold);
   outline-offset: -9px;
   border-radius: 6px;
-
   box-shadow:
     0 10px 40px rgba(0, 0, 0, 0.7),
     inset 0 0 40px rgba(90, 60, 20, 0.35);
@@ -125,17 +112,20 @@ canvas#c {
   outline-color: var(--blood);
 }
 
-/* ==================== TIPOGRAFÍA ==================== */
+.small-box {
+  max-width: 520px;
+}
+
+/* =========================================================
+   TIPOGRAFÍA
+   ========================================================= */
 
 .title-box h1 {
   margin: 4px 0 2px;
-
   font-family: var(--font-title);
   font-size: clamp(28px, 6vw, 46px);
   letter-spacing: 2px;
-
   color: #3a2410;
-
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
@@ -143,7 +133,6 @@ canvas#c {
   color: var(--gold);
   font-size: 44px;
   line-height: 1;
-
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
@@ -155,10 +144,8 @@ canvas#c {
 
 h2 {
   margin: 0 0 12px;
-
   font-family: var(--font-title);
   font-size: 30px;
-
   color: #3a2410;
 }
 
@@ -173,36 +160,30 @@ h2 {
   opacity: 0.8;
 }
 
-/* ==================== BOTONES ==================== */
+/* =========================================================
+   BOTONES
+   ========================================================= */
 
 .buttons {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-
   margin-top: 8px;
 }
 
 .btn {
   min-width: 250px;
   padding: 11px 26px;
-
   font-family: var(--font-title);
   font-size: 18px;
   font-weight: 700;
   letter-spacing: 1px;
-
   color: #f1e4c0;
-
-  background:
-    linear-gradient(#5e4326, #3b2815);
-
+  background: linear-gradient(#5e4326, #3b2815);
   border: 2px solid var(--gold);
   border-radius: 4px;
-
   cursor: pointer;
-
   transition:
     transform 0.1s,
     filter 0.15s,
@@ -210,17 +191,12 @@ h2 {
 }
 
 .btn:hover {
-  filter: brightness(1.25);
+  filter: brightness(1.2);
   transform: translateY(-1px);
 }
 
 .btn:active {
   transform: translateY(1px);
-}
-
-.btn:focus-visible {
-  outline: 2px solid #f5d98a;
-  outline-offset: 4px;
 }
 
 .btn:disabled {
@@ -230,39 +206,44 @@ h2 {
   transform: none;
 }
 
-/* ==================== TABLA DE CONTROLES ==================== */
+/* =========================================================
+   TABLA DE CONTROLES
+   ========================================================= */
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
 
 table {
   width: 100%;
   margin-bottom: 14px;
-
   border-collapse: collapse;
   text-align: left;
   font-size: 17px;
 }
 
 td {
-  padding: 5px 8px;
+  padding: 6px 8px;
   border-bottom: 1px solid rgba(60, 40, 15, 0.25);
 }
 
 td:first-child {
   width: 38%;
-
   font-family: var(--font-title);
   font-weight: 700;
-
   white-space: nowrap;
 }
 
-/* ==================== CONFIGURACIÓN ==================== */
+/* =========================================================
+   CONFIGURACIÓN
+   ========================================================= */
 
 label {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 14px;
-
   margin: 12px 0;
   font-size: 18px;
 }
@@ -273,16 +254,14 @@ input[type="range"] {
   accent-color: #7a5a2a;
 }
 
-/* ==================================================
+/* =========================================================
    SELECTOR DE PERSONAJES
-   ================================================== */
+   ========================================================= */
 
 #character-select {
   z-index: 25;
-
   overflow-x: hidden;
   overflow-y: auto;
-
   padding: 20px;
   overscroll-behavior: contain;
 }
@@ -291,10 +270,8 @@ input[type="range"] {
   width: min(900px, 100%);
   max-width: 900px;
   max-height: 94vh;
-
   overflow-x: hidden;
   overflow-y: auto;
-
   padding: 28px;
 }
 
@@ -304,11 +281,9 @@ input[type="range"] {
 
 #character-select h1 {
   margin: 8px 0;
-
   font-family: var(--font-title);
   font-size: clamp(25px, 4vw, 38px);
   letter-spacing: 1px;
-
   color: #3a2410;
 }
 
@@ -316,45 +291,33 @@ input[type="range"] {
   margin-bottom: 22px;
 }
 
-/* Tarjetas lado a lado */
-
 .character-options {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: stretch;
   gap: 22px;
-
   width: 100%;
   margin: 20px 0;
 }
-
-/* Tarjeta individual */
 
 .character-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-
   min-width: 0;
   padding: 22px 18px;
-
   color: var(--parch);
   text-align: center;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(66, 48, 29, 0.98),
-      rgba(24, 21, 18, 0.99)
-    );
-
+  background: linear-gradient(
+    145deg,
+    rgba(66, 48, 29, 0.98),
+    rgba(24, 21, 18, 0.99)
+  );
   border: 2px solid var(--gold);
   border-radius: 6px;
-
   box-shadow:
     inset 0 0 25px rgba(184, 146, 58, 0.12),
     0 5px 16px rgba(0, 0, 0, 0.35);
-
   transition:
     transform 0.2s ease,
     border-color 0.2s ease,
@@ -364,79 +327,55 @@ input[type="range"] {
 .character-card:hover {
   transform: translateY(-3px);
   border-color: #e5c66f;
-
   box-shadow:
     inset 0 0 25px rgba(184, 146, 58, 0.18),
     0 8px 22px rgba(0, 0, 0, 0.45);
 }
 
-/* Emblema medieval */
-
 .character-emblem {
   display: flex;
   align-items: center;
   justify-content: center;
-
   width: 76px;
   height: 76px;
   flex-shrink: 0;
-
   margin-bottom: 12px;
-
   color: #e5c66f;
   font-size: 42px;
-
   border: 2px solid var(--gold);
   border-radius: 50%;
-
-  background:
-    radial-gradient(
-      circle,
-      rgba(184, 146, 58, 0.16),
-      rgba(0, 0, 0, 0.4)
-    );
-
+  background: radial-gradient(
+    circle,
+    rgba(184, 146, 58, 0.16),
+    rgba(0, 0, 0, 0.4)
+  );
   box-shadow:
     0 0 15px rgba(184, 146, 58, 0.12),
     inset 0 0 12px rgba(0, 0, 0, 0.3);
 }
 
-/* Nombres de los personajes */
-
 .character-card h2 {
   margin: 4px 0 12px;
-
   font-family: var(--font-title);
   font-size: 23px;
-
   color: #e5c66f;
 }
-
-/* Descripción */
 
 .character-description {
   min-height: 72px;
   margin: 0;
-
   color: #f0e3c8;
-
   font-size: 18px;
   line-height: 1.45;
 }
 
-/* Habilidades */
-
 .character-traits {
   width: 100%;
   min-height: 100px;
-
   margin: 14px 0 20px;
   padding-left: 22px;
-
   text-align: left;
-
   color: #e2d1ad;
-
   font-size: 17px;
   line-height: 1.8;
 }
@@ -445,41 +384,33 @@ input[type="range"] {
   color: #d6b46b;
 }
 
-/* Botón de selección */
-
 .character-button {
   width: 100%;
   min-width: 0;
   margin-top: auto;
   padding: 12px 10px;
-
   font-size: 16px;
   letter-spacing: 0.5px;
 }
 
 .character-button:hover {
   border-color: #f0d38a;
-
-  box-shadow:
-    0 0 12px rgba(184, 146, 58, 0.2);
+  box-shadow: 0 0 12px rgba(184, 146, 58, 0.2);
 }
-
-/* Volver al menú */
 
 .character-back-button {
   min-width: 220px;
   margin: 8px auto 0;
 }
 
-/* ==================================================
-   HUD: INFORMACIÓN DEL JUGADOR
-   ================================================== */
+/* =========================================================
+   HUD DEL JUGADOR
+   ========================================================= */
 
 #hud {
   position: absolute;
   inset: 0;
   z-index: 5;
-
   pointer-events: none;
 }
 
@@ -487,7 +418,6 @@ input[type="range"] {
   position: absolute;
   top: 16px;
   left: 16px;
-
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -497,23 +427,16 @@ input[type="range"] {
   display: flex;
   align-items: center;
   justify-content: center;
-
   width: 54px;
   height: 54px;
-
   font-family: var(--font-title);
   font-size: 17px;
   font-weight: 700;
   text-align: center;
-
   color: #f1e4c0;
-
-  background:
-    linear-gradient(#5e4326, #2d1e10);
-
+  background: linear-gradient(#5e4326, #2d1e10);
   border: 2px solid var(--gold);
   border-radius: 50%;
-
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
@@ -525,23 +448,17 @@ input[type="range"] {
 
 .bar {
   position: relative;
-
   width: min(300px, 52vw);
-
   overflow: hidden;
-
   background: rgba(10, 8, 6, 0.7);
-
   border: 2px solid #3b2815;
   border-radius: 3px;
-
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
 }
 
 .bar .fill {
   width: 100%;
   height: 100%;
-
   transition: width 0.12s linear;
 }
 
@@ -550,8 +467,7 @@ input[type="range"] {
 }
 
 .bar.hp .fill {
-  background:
-    linear-gradient(#c93a3a, #7d1717);
+  background: linear-gradient(#c93a3a, #7d1717);
 }
 
 .bar.sta {
@@ -559,8 +475,7 @@ input[type="range"] {
 }
 
 .bar.sta .fill {
-  background:
-    linear-gradient(#e6c24a, #9b7a14);
+  background: linear-gradient(#e6c24a, #9b7a14);
 }
 
 .bar.xp {
@@ -568,8 +483,7 @@ input[type="range"] {
 }
 
 .bar.xp .fill {
-  background:
-    linear-gradient(#6fb3d9, #2d6a8f);
+  background: linear-gradient(#6fb3d9, #2d6a8f);
 }
 
 .bar.sta.low {
@@ -585,33 +499,27 @@ input[type="range"] {
 #txt-hp {
   position: absolute;
   inset: 0;
-
   color: #fff;
   text-align: center;
-
   font-family: var(--font-title);
   font-size: 13px;
   line-height: 17px;
-
   text-shadow: 0 1px 2px #000;
 }
 
-/* ==================== MISIÓN ==================== */
+/* =========================================================
+   MISIÓN
+   ========================================================= */
 
 #quest {
   position: absolute;
   top: 16px;
   right: 16px;
-
   max-width: min(300px, 42vw);
-
   padding: 8px 12px;
-
   background: rgba(231, 216, 177, 0.88);
-
   border: 2px solid #5a4020;
   border-radius: 4px;
-
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
@@ -619,9 +527,7 @@ input[type="range"] {
   font-family: var(--font-title);
   font-size: 13px;
   font-weight: 700;
-
   color: #7a5a2a;
-
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -635,38 +541,33 @@ input[type="range"] {
   position: absolute;
   bottom: 10px;
   left: 50%;
-
   transform: translateX(-50%);
-
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.65);
   font-size: 14px;
-
   text-shadow: 0 1px 3px #000;
+  white-space: nowrap;
 }
 
-/* ==================== NOTIFICACIONES ==================== */
+/* =========================================================
+   NOTIFICACIONES
+   ========================================================= */
 
 #notify {
   position: absolute;
   top: 18%;
   left: 50%;
-
   transform: translateX(-50%);
   text-align: center;
 }
 
 .note {
   margin-bottom: 4px;
-
   font-family: var(--font-title);
   font-size: 24px;
-
   color: #f6e7b5;
-
   text-shadow:
     0 2px 6px #000,
     0 0 14px rgba(184, 146, 58, 0.6);
-
   animation: noteanim 2.6s forwards;
   white-space: nowrap;
 }
@@ -692,7 +593,9 @@ input[type="range"] {
   }
 }
 
-/* ==================== BARRAS DE ENEMIGOS ==================== */
+/* =========================================================
+   BARRAS DE ENEMIGOS
+   ========================================================= */
 
 #enemy-bars {
   position: absolute;
@@ -708,19 +611,15 @@ input[type="range"] {
 .ebar .nm {
   font-family: var(--font-title);
   font-size: 13px;
-
   color: #f2dcb0;
   text-shadow: 0 1px 3px #000;
-
   white-space: nowrap;
 }
 
 .ebar .eb {
   width: 74px;
   height: 7px;
-
   margin: 2px auto 0;
-
   background: rgba(0, 0, 0, 0.7);
   border: 1px solid #000;
 }
@@ -728,12 +627,12 @@ input[type="range"] {
 .ebar .ef {
   width: 100%;
   height: 100%;
-
-  background:
-    linear-gradient(#d44, #811);
+  background: linear-gradient(#d44, #811);
 }
 
-/* ==================== DAÑO Y TEXTOS FLOTANTES ==================== */
+/* =========================================================
+   DAÑO Y TEXTOS FLOTANTES
+   ========================================================= */
 
 #float-layer {
   position: absolute;
@@ -744,15 +643,11 @@ input[type="range"] {
 .ftxt {
   position: absolute;
   transform: translate(-50%, -50%);
-
   font-family: var(--font-title);
   font-size: 22px;
   font-weight: 700;
-
   color: #fff3c4;
-
   text-shadow: 0 2px 4px #000;
-
   animation: floatup 0.9s forwards;
   white-space: nowrap;
 }
@@ -778,17 +673,17 @@ input[type="range"] {
   }
 }
 
-/* ==================== MIRA Y EFECTO DE DAÑO ==================== */
+/* =========================================================
+   MIRA Y EFECTO DE DAÑO
+   ========================================================= */
 
 #crosshair {
   position: absolute;
   top: 50%;
   left: 50%;
-
   width: 4px;
   height: 4px;
   margin: -2px;
-
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.45);
 }
@@ -796,14 +691,11 @@ input[type="range"] {
 #vignette-hit {
   position: absolute;
   inset: 0;
-
-  background:
-    radial-gradient(
-      ellipse at center,
-      transparent 45%,
-      rgba(160, 10, 10, 0.75)
-    );
-
+  background: radial-gradient(
+    ellipse at center,
+    transparent 45%,
+    rgba(160, 10, 10, 0.75)
+  );
   opacity: 0;
   transition: opacity 0.35s;
 }
@@ -813,15 +705,14 @@ input[type="range"] {
   transition: opacity 0.03s;
 }
 
-/* ==================================================
+/* =========================================================
    CONTROLES TÁCTILES
-   ================================================== */
+   ========================================================= */
 
 #touch {
   position: absolute;
   inset: 0;
   z-index: 6;
-
   pointer-events: none;
 }
 
@@ -829,15 +720,11 @@ input[type="range"] {
   position: absolute;
   left: 4vw;
   bottom: 8vh;
-
   width: 150px;
   height: 150px;
-
   background: rgba(255, 255, 255, 0.1);
-
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-
   pointer-events: auto;
   touch-action: none;
 }
@@ -846,13 +733,10 @@ input[type="range"] {
   position: absolute;
   top: 50%;
   left: 50%;
-
   width: 64px;
   height: 64px;
   margin: -32px;
-
   background: rgba(231, 216, 177, 0.5);
-
   border: 2px solid rgba(255, 255, 255, 0.6);
   border-radius: 50%;
 }
@@ -861,37 +745,29 @@ input[type="range"] {
   position: absolute;
   right: 3vw;
   bottom: 5vh;
-
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-
   width: 290px;
-
   pointer-events: none;
 }
 
 .tb {
   height: 58px;
-
   font-family: var(--font-title);
   font-size: 13px;
   font-weight: 700;
-
   color: #f1e4c0;
-
-  background: rgba(60, 40, 20, 0.72);
-
+  background: rgba(60, 40, 20, 0.82);
   border: 2px solid rgba(184, 146, 58, 0.8);
   border-radius: 12px;
-
   pointer-events: auto;
   touch-action: none;
+  cursor: pointer;
 }
 
 .tb.big {
-  grid-column: span 1;
-  background: rgba(120, 40, 30, 0.8);
+  background: rgba(120, 40, 30, 0.88);
 }
 
 .tb:active,
@@ -903,16 +779,14 @@ input[type="range"] {
   position: absolute;
   top: 14px;
   left: 50%;
-
   width: 52px;
   height: 40px;
-
   transform: translateX(-50%);
 }
 
-/* ==================================================
-   RESPONSIVE: TABLETAS Y CELULARES
-   ================================================== */
+/* =========================================================
+   TABLETAS Y MÓVILES
+   ========================================================= */
 
 @media (max-width: 700px) {
   .parchment {
@@ -970,8 +844,6 @@ input[type="range"] {
     width: 100%;
   }
 }
-
-/* Celulares estrechos: tarjetas apiladas */
 
 @media (max-width: 480px) {
   #character-select {
@@ -1052,7 +924,14 @@ input[type="range"] {
     font-size: 11px;
   }
 
+  #info-hint {
+    bottom: 4px;
+    font-size: 11px;
+  }
+
   #joy {
+    left: 12px;
+    bottom: 5vh;
     width: 112px;
     height: 112px;
   }
@@ -1079,14 +958,33 @@ input[type="range"] {
     font-size: 18px;
     white-space: normal;
   }
+
+  table {
+    font-size: 15px;
+  }
+
+  td {
+    padding: 5px;
+  }
+
+  td:first-child {
+    white-space: normal;
+  }
 }
 
-/* Reducir animaciones si el usuario lo prefiere */
+/* =========================================================
+   ACCESIBILIDAD: REDUCIR ANIMACIONES
+   ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   .character-card,
   .btn,
   .bar .fill {
     transition: none;
+  }
+
+  .note,
+  .ftxt {
+    animation-duration: 0.01ms;
   }
 }
